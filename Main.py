@@ -16,7 +16,7 @@ st.set_page_config(page_title='QuickDock', layout="wide")
 
 ## Titles
 
-# st.markdown("<h1 style='text-align: center; color:#333333 ;'>QUICKDOCK</h1>", unsafe_allow_html=True)
+st.markdown("<h4 style='text-align: center; color:#333333 ;'>We are QUICKDOCK.</h4>", unsafe_allow_html=True)
 # st.divider()
 
 hide = """
@@ -167,3 +167,28 @@ with col3:
 
 with col4:
     st.metric(label='Probability of Rain', value=str(prob_rain)+'%')
+
+
+
+
+##### CLOSEST STATIONS
+
+st.divider()
+
+st.markdown("<h3 style='text-align: center; color: #333333 ;'>CLOSEST STATIONS</h3>", unsafe_allow_html=True)
+stations_f_closest=pd.read_csv('raw_data/stations_f_closest.csv')
+
+col1, col2 = st.columns(2)
+
+with col1:
+    st.subheader('CLOSEST ORIGIN STATION')
+    for row in stations_f_closest.iterrows():
+        if row[1]['Station_name']==origin:
+            st.write(row[1]['Closest_name'])
+
+
+with col2:
+    st.subheader('CLOSEST DESTINATION STATION')
+    for row in stations_f_closest.iterrows():
+        if row[1]['Station_name']==destination:
+            st.write(row[1]['Closest_name'])

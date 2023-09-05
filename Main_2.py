@@ -12,9 +12,11 @@ from londonbssfront.params import *
 from streamlit_extras.stylable_container import stylable_container
 from streamlit_extras.let_it_rain import rain
 from londonbssfront.styling import add_logo_2
+from londonbssfront.styling import add_logo_3
 from streamlit_extras.app_logo import add_logo
 from PIL import Image
 from streamlit_extras.colored_header import colored_header
+from londonbssfront.distance import dist,find_nearest
 
 
 ###############################################################################
@@ -23,20 +25,17 @@ from streamlit_extras.colored_header import colored_header
 our_name='DockDockGo.'
 st.set_page_config(page_title=our_name, layout="wide")
 Logo= Image.open('raw_data/Logo.png')
+Logo_url='raw_data/Logo.png'
 
-# add_logo('raw_data/Logo.png', height=20)
-add_logo_2('raw_data/Logo.png',100)
+add_logo_2()
 
-## Titles
-
-# st.markdown("<h4 style='text-align: center; color:#333333 ;'>We are DockDockGo.</h4>", unsafe_allow_html=True)
+with st.sidebar.container():
+    st.image(Logo,width=100)
 
 col1, col2, col3, col4,col5,col6,col7,col8,col9= st.columns(9)
 
 with col5:
     st.image(Logo, use_column_width=True)
-
-
 
 
 ### METRIC MARKDOWN
@@ -57,6 +56,12 @@ div[data-testid="metric-container"] > label[data-testid="stMetricLabel"] > div {
 </style>
 """
 , unsafe_allow_html=True)
+
+##############################################################################
+### CALLING API
+
+url = "https://nominatim.openstreetmap.org"
+stations_df=pd.read_csv('raw_data/stations_df_st.csv')
 
 
 ###############################################################################
@@ -85,16 +90,17 @@ with col1:
         }
         """,
 ):
-            st.text_input('AREA','North')
-            origin_neighbourhood=st.text_input('NEIGHBORHOOD','Hoxton')
-            origin_street=st.text_input('STREET','Shoreditch Park')
+            origin_address=st.text_input(' ','N1 7FZ')
+            params = {
+                    'q': origin_address,
+                    'format': 'json'
+                }
+            response = requests.get(url,params=params).json() # TEXT -> [] / {}
+            lat_origin=response[0]['lat']
+            lon_origin=response[0]['lon']
+            origin=find_nearest(float(lat_origin),float(lon_origin),stations_df)
 
-    # expander1=st.expander(label=' ',expanded=True)
-    # st.subheader('ORIGIN')
-    # expander1.markdown("<h3 style='text-align: center; color: #333333 ;'>ORIGIN</h3>", unsafe_allow_html=True)
-    # expander1.text_input('AREA','North')
-    # origin_neighbourhood=expander1.text_input('NEIGHBORHOOD','Hoxton')
-    # origin_street=expander1.text_input('STREET','Shoreditch Park')
+
 
 
 with col2:
@@ -109,6 +115,7 @@ with col2:
         }
         """,
 ):
+        st.markdown("<h3 style='text-align: center; color: #333333 ;'>DESTINATION</h3>", unsafe_allow_html=True)
         with stylable_container(
     key="textinput",
     css_styles="""
@@ -117,17 +124,22 @@ with col2:
         }
         """,
 ):
-            st.markdown("<h3 style='text-align: center; color: #333333 ;'>DESTINATION</h3>", unsafe_allow_html=True)
-            st.text_input('AREA','East')
-            destination_neighbourhood=st.text_input('NEIGHBORHOOD','Liverpool Street')
-            destination_street=st.text_input('STREET','Finsbury Circus')
+            destination_address=st.text_input(' ','EC2N 2DB')
+            params = {
+                    'q': destination_address,
+                    'format': 'json'
+                }
+            response = requests.get(url,params=params).json() # TEXT -> [] / {}
+            lat_destination=response[0]['lat']
+            lon_destination=response[0]['lon']
+            destination=find_nearest(float(lat_destination),float(lon_destination),stations_df)
 
-    # expander2=st.expander(label=' ',expanded=True)
-    # expander2.markdown("<h3 style='text-align: center; color:#333333 ;'>DESTINATION</h3>", unsafe_allow_html=True)
-    # # st.subheader('DESTINATION')
-    # expander2.text_input('AREA','East')
-    # destination_neighbourhood=expander2.text_input('NEIGHBORHOOD','Liverpool Street')
-    # destination_street=expander2.text_input('STREET','Finsbury Circus')
+
+
+
+
+
+##############################################################################
 
 st.divider()
 
@@ -167,8 +179,6 @@ st.divider()
 ##### CODE
 
 ### REAL TIME NUMBERS CODE
-origin=origin_street+", "+origin_neighbourhood
-destination=destination_street+", "+destination_neighbourhood
 
 response= requests.get('https://api.tfl.gov.uk/BikePoint/')
 stations = response.json()
@@ -192,7 +202,7 @@ for station in stations:
 
 #### ITINERARY CODE
 
-stations_df=pd.read_csv('raw_data/stations_df_st.csv')
+
 
 # stations_dict={'Stations': [origin, destination],
 #                'Latitude': [origin_lat,destination_lat],
@@ -280,13 +290,12 @@ for day in weather_2['forecast']['forecastday']:
 
 #### CLOSEST STATIONS CODE
 
-stations_f_closest=pd.read_csv('raw_data/stations_f_closest.csv')
-for row in stations_f_closest.iterrows():
-    if row[1]['Station_name']==origin:
-        closest_origin=row[1]['Closest_name']
-    if row[1]['Station_name']==destination:
-        closest_destination=row[1]['Closest_name']
 
+stations_f2_origin=stations_df.drop(stations_df[stations_df['Station_name']==origin].index[0],axis=0)
+stations_f2_destination=stations_df.drop(stations_df[stations_df['Station_name']==destination].index[0],axis=0)
+
+closest_origin=find_nearest(float(lat_origin),float(lon_origin),stations_f2_origin)
+closest_destination=find_nearest(float(lat_destination),float(lon_destination),stations_f2_destination)
 
 for station in stations:
     if station['commonName']==closest_origin:
@@ -309,6 +318,7 @@ for station in stations:
 #### REAL TIME NUMBERS
 
 if st.button('Predict'):
+
     with stylable_container(
     key="container_with_border",
     css_styles="""
@@ -320,7 +330,14 @@ if st.button('Predict'):
         }
         """,
 ):
+
+
+
         st.markdown("<h3 style='text-align: center; color: #333333 ;'>PREDICTION</h3>", unsafe_allow_html=True)
+
+
+
+
         col1, col2 = st.columns(2)
 
         with col1:
@@ -336,7 +353,7 @@ if st.button('Predict'):
                     }
                     """,
                 ):
-                st.markdown("<h3 style='text-align: center; color:#333333 ;'>ORIGIN</h3>", unsafe_allow_html=True)
+                st.markdown(f"<h3 style='text-align: center; color:#333333 ;'>{origin}</h3>", unsafe_allow_html=True)
                 with stylable_container(
         key="metricinput",
         css_styles="""
@@ -368,7 +385,7 @@ if st.button('Predict'):
             }
             """,
     ):
-                    st.markdown("<h3 style='text-align: center; color:#333333 ;'>DESTINATION</h3>", unsafe_allow_html=True)
+                    st.markdown(f"<h3 style='text-align: center; color:#333333 ;'>{destination}</h3>", unsafe_allow_html=True)
                     st.metric(label="EMPTY DOCKS", value=nb_empty_docks)
 
     st.divider()
@@ -388,9 +405,22 @@ if st.button('Predict'):
                 }
                 """,
             ):
+        with stylable_container(
+        key="metricinput",
+        css_styles="""
+            metricinput {
+                border-radius: 20px;
+            }
+            """,
+    ):
 
             st.markdown("<h3 style='text-align: center; color:#333333 ;'>ITINERARY</h3>", unsafe_allow_html=True)
-            st.map(data=itinerary_df,latitude='lat',longitude='lon',zoom=13,size='size',color='color',use_container_width=False)
+            st.map(data=itinerary_df,latitude='lat',longitude='lon',zoom=12.5,size='size',color='color',use_container_width=False)
+
+    st.divider()
+
+
+#### TRIP DURATION
 
     with stylable_container(
             key="container_with_border",
@@ -405,7 +435,7 @@ if st.button('Predict'):
                 """,
             ):
 
-#### TRIP DURATION
+
         st.markdown("<h3 style='text-align: center; color: #333333 ;'>TRIP DURATION</h3>", unsafe_allow_html=True)
 
         col1, col2 = st.columns(2)
@@ -504,7 +534,7 @@ if st.button('Predict'):
             }
             """,
     ):
-                    st.metric(label='TEMPERATURE',value=str(temperature)+'°C')
+                    st.metric(label='TEMPERATURE',value=str(round(temperature,0))+'°C')
 
         with col2:
             with stylable_container(
@@ -594,7 +624,7 @@ if st.button('Predict'):
             }
             """,
     ):
-                    st.markdown(f"<h5 style='text-align: center; color: #333333 ;'>{closest_origin}</h4>", unsafe_allow_html=True)
+                    st.markdown(f"<h4 style='text-align: center; color: #333333 ;'>{closest_origin}</h4>", unsafe_allow_html=True)
                     st.metric(label="AVAILABLE BIKES", value=nb_bikes_closest_origin)
 
         with col2:
@@ -618,7 +648,7 @@ if st.button('Predict'):
             }
             """,
             ):
-                    st.markdown(f"<h5 style='text-align: center; color: #333333 ;'>{closest_destination}</h4>", unsafe_allow_html=True)
+                    st.markdown(f"<h4 style='text-align: center; color: #333333 ;'>{closest_destination}</h4>", unsafe_allow_html=True)
                     st.metric(label="EMPTY DOCKS", value=nb_empty_docks_closest_destination)
 
                 # if nb_bikes==0 and nb_empty_docks!=0:

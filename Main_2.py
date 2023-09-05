@@ -22,47 +22,142 @@ from londonbssfront.distance import dist,find_nearest
 ###############################################################################
 ###### THEMING
 
-our_name='DockDockGo.'
-st.set_page_config(page_title=our_name, layout="wide")
+
+our_name='DockDockGo'
+st.set_page_config(page_title='About_Us', layout="wide")
 Logo= Image.open('raw_data/Logo.png')
 Logo_url='raw_data/Logo.png'
 
-add_logo_2()
 
-with st.sidebar.container():
-    st.image(Logo,width=100)
+# st.markdown(
+#         """
+#         <style>
+#         .stSideBarNav{
+# color:red;
+# }
+#     [data-baseweb="sidebarnav"] > div {
+#     background-color: white;
+#     color: white;
+#             }
+#         </style>
+#         """,
+#         unsafe_allow_html=True,
+#     )
+
+
+# add_logo_2()
+
+# with st.sidebar.container():
+#     st.image(Logo,width=100)
 
 col1, col2, col3, col4,col5,col6,col7,col8,col9= st.columns(9)
-
 with col5:
     st.image(Logo, use_column_width=True)
 
+################################################################################
+### MARKDOWN
 
-### METRIC MARKDOWN
+### FOR METR CONTAINER
 
 st.markdown("""
 <style>
 div[data-testid="metric-container"] {
    background-color: #f0f0f0;
+   justify-content: center;
    padding: 5% 5% 5% 10%;
    color: #d30000;
    max-width=10px;
+
 }
 
 /* breakline for metric text         */
-div[data-testid="metric-container"] > label[data-testid="stMetricLabel"] > div {
-   color: #6d6d6d;
+div[data-testid="metric-container"] > label > div {
+   color: #333333;
+   justify-content: center;
+}
 }
 </style>
 """
 , unsafe_allow_html=True)
+
+### FOR TEXT INPUT
+
+st.markdown("""
+<style>
+.stTextInput > label {
+font-size:110%;
+color:white;
+background:white;
+border: 2px;
+border-radius: 3px;
+}
+
+[data-baseweb="base-input"]{
+background:#f0f0f0;
+border: 2px;
+border-radius: 3px;
+}
+
+input[class]{
+font-size:110%;
+color: black;
+}
+</style>
+""", unsafe_allow_html=True)
+
+### FOR TIME INPUT
+
+st.markdown(
+    """
+    <style>
+    .stTimeInput > label {
+        font-size: 110%;
+        color: black;
+        background: white;
+        border: 2px;
+        border-radius: 3px;
+    }
+
+    [data-baseweb="select"] > div {
+    background-color: #f0f0f0;
+    color: #d30000 ;
+}
+    [data-baseweb="time-input"] {
+        background: #f0f0f0;
+        border: 2px;
+        border-radius: 3px;
+    }
+
+    input[class] {
+        font-size: 110%;
+        background:  #f0f0f0;
+        color: #d30000;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+
+
+# components.html(
+#     """
+# <script>
+# const elements = window.parent.document.querySelectorAll('.stNumberInput div[data-baseweb="input"] > div')
+# console.log(elements)
+# elements[1].style.backgroundColor = 'red'
+# </script>
+# """,
+#     height=0,
+#     width=0,
+# )
+
 
 ##############################################################################
 ### CALLING API
 
 url = "https://nominatim.openstreetmap.org"
 stations_df=pd.read_csv('raw_data/stations_df_st.csv')
-
 
 ###############################################################################
 ### ORIGIN AND DESTINATION INPUTS
@@ -81,7 +176,7 @@ with col1:
         }
         """,
 ):
-        st.markdown("<h3 style='text-align: center; color: #333333 ;'>ORIGIN</h3>", unsafe_allow_html=True)
+        st.markdown("<h4 style='text-align: center; color: #6d6d6d ;'>ORIGIN</h4>", unsafe_allow_html=True)
         with stylable_container(
     key="textinput",
     css_styles="""
@@ -101,8 +196,6 @@ with col1:
             origin=find_nearest(float(lat_origin),float(lon_origin),stations_df)
 
 
-
-
 with col2:
     with stylable_container(
     key="container_with_border",
@@ -115,7 +208,7 @@ with col2:
         }
         """,
 ):
-        st.markdown("<h3 style='text-align: center; color: #333333 ;'>DESTINATION</h3>", unsafe_allow_html=True)
+        st.markdown("<h4 style='text-align: center; color: #6d6d6d ;'>DESTINATION</h4>", unsafe_allow_html=True)
         with stylable_container(
     key="textinput",
     css_styles="""
@@ -134,14 +227,8 @@ with col2:
             lon_destination=response[0]['lon']
             destination=find_nearest(float(lat_destination),float(lon_destination),stations_df)
 
-
-
-
-
-
-##############################################################################
-
-st.divider()
+# st.divider()
+# st.markdown("""<hr style="height:1px;border:none;color:#333333;background-color:#333333;" /> """, unsafe_allow_html=True)
 
 ###############################################################################
 #### TIMING
@@ -159,19 +246,21 @@ with stylable_container(
         }
         """,
 ):
-        st.markdown("<h3 style='text-align: center; color: #333333 ;'>WHEN DO YOU NEED TO LEAVE</h3>", unsafe_allow_html=True)
+        st.markdown("<h4 style='text-align: center; color: #6d6d6d ;'>DEPARTURE TIME</h4>", unsafe_allow_html=True)
         with stylable_container(
-    key="timeinput",
+    key="textinput",
     css_styles="""
-        timeinput {
+        textinput {
             border-radius: 20px;
+            background: #f0f0f0;
         }
         """,
 ):
+
             timing=st.time_input('(IN HOURS)',datetime.time(1, 00),step=3600)
 
 
-st.divider()
+# st.divider()
 
 ###############################################################################
 ### Connecting to the API
@@ -317,208 +406,98 @@ for station in stations:
 
 #### REAL TIME NUMBERS
 
-if st.button('Predict'):
 
-    with stylable_container(
-    key="container_with_border",
+with stylable_container(
+    key="red_button",
     css_styles="""
-        {
-            background-color: white;
-            border: 1px solid rgba(49, 51, 65, 0.2);
-            border-radius: 0.5rem;
-            padding: calc(1em - 1px)
+        button {
+            background-color: #d30000;
+            color: white;
+            border-radius: 20px;
         }
         """,
 ):
+    if st.button("Predict"):
 
-
-
-        st.markdown("<h3 style='text-align: center; color: #333333 ;'>PREDICTION</h3>", unsafe_allow_html=True)
-
-
-
-
-        col1, col2 = st.columns(2)
-
-        with col1:
-            with stylable_container(
-                key="container_with_border_grey",
-                css_styles="""
-                    {
-                        background-color: #f0f0f0;
-                        margin: auto;
-                        border: 1px solid rgba(49, 51, 65, 0.2);
-                        border-radius: 0.5rem;
-                        padding: calc(1em - 1px)
-                    }
-                    """,
-                ):
-                st.markdown(f"<h3 style='text-align: center; color:#333333 ;'>{origin}</h3>", unsafe_allow_html=True)
-                with stylable_container(
-        key="metricinput",
-        css_styles="""
-            metricinput {
-                border-radius: 20px;
-            }
-            """,
-    ):
-                    st.metric(label="AVAILABLE BIKES", value=nb_bikes)
-
-        with col2:
-            with stylable_container(
-                key="container_with_border_grey",
-                css_styles="""
-                    {
-                        background-color: #f0f0f0;
-                        margin: auto;
-                        border: 1px solid rgba(49, 51, 65, 0.2);
-                        border-radius: 0.5rem;
-                        padding: calc(1em - 1px)
-                    }
-                    """,
-                ):
-                with stylable_container(
-        key="metricinput",
-        css_styles="""
-            metricinput {
-                border-radius: 20px;
-            }
-            """,
-    ):
-                    st.markdown(f"<h3 style='text-align: center; color:#333333 ;'>{destination}</h3>", unsafe_allow_html=True)
-                    st.metric(label="EMPTY DOCKS", value=nb_empty_docks)
-
-    st.divider()
-
-#### MAP and ITINERARY
-
-
-    with stylable_container(
-            key="container_with_border",
-            css_styles="""
-                {
-                    background-color: white;
-                    margin: auto;
-                    border: 1px solid rgba(49, 51, 65, 0.2);
-                    border-radius: 0.5rem;
-                    padding: calc(1em - 1px)
-                }
-                """,
-            ):
         with stylable_container(
-        key="metricinput",
+        key="container_with_border",
         css_styles="""
-            metricinput {
-                border-radius: 20px;
+            {
+                background-color: white;
+                border: 1px solid rgba(49, 51, 65, 0.2);
+                border-radius: 0.5rem;
+                padding: calc(1em - 1px)
             }
             """,
     ):
 
-            st.markdown("<h3 style='text-align: center; color:#333333 ;'>ITINERARY</h3>", unsafe_allow_html=True)
-            st.map(data=itinerary_df,latitude='lat',longitude='lon',zoom=12.5,size='size',color='color',use_container_width=False)
-
-    st.divider()
 
 
-#### TRIP DURATION
+            st.markdown("<h3 style='text-align: center; color: #6d6d6d ;'>Prediction</h3>", unsafe_allow_html=True)
 
-    with stylable_container(
-            key="container_with_border",
+            col1, col2 = st.columns(2)
+
+            with col1:
+
+                with stylable_container(
+                    key="container_with_border_grey",
+                    css_styles="""
+                        {
+                            background-color: #c2c2c2;
+                            margin: auto;
+                            border: 1px solid rgba(49, 51, 65, 0.2);
+                            border-radius: 0.5rem;
+                            padding: calc(1em - 1px)
+                        }
+                        """,
+                    ):
+                    st.markdown(f"<h5 style='text-align: center; color:#6d6d6d ;'>ORIGIN</h5>", unsafe_allow_html=True)
+                    st.markdown(f"<h3 style='text-align: center; color:#333333 ;'>{origin}</h3>", unsafe_allow_html=True)
+                    with stylable_container(
+            key="metricinput",
             css_styles="""
-                {
-                    background-color: white;
-                    margin: auto;
-                    border: 1px solid rgba(49, 51, 65, 0.2);
-                    border-radius: 0.5rem;
-                    padding: calc(1em - 1px)
+                metricinput {
+                    border-radius: 20px;
                 }
                 """,
-            ):
+        ):
+                        st.metric(label="AVAILABLE BIKES", value=nb_bikes)
 
-
-        st.markdown("<h3 style='text-align: center; color: #333333 ;'>TRIP DURATION</h3>", unsafe_allow_html=True)
-
-        col1, col2 = st.columns(2)
-        with col1:
-            with stylable_container(
-                key="container_with_border_grey",
-                css_styles="""
-                    {
-                        background-color: #f0f0f0;
-                        margin: auto;
-                        border: 1px solid rgba(49, 51, 65, 0.2);
-                        border-radius: 0.5rem;
-                        padding: calc(1em - 1px)
-                    }
-                    """,
-                ):
+            with col2:
                 with stylable_container(
-        key="metricinput",
-        css_styles="""
-            metricinput {
-                border-radius: 20px;
-            }
-            """,
-    ):
-
-                    st.metric(label='CYCLING',value=str(duration_cycle)+' min')
-
-        with col2:
-            with stylable_container(
-                key="container_with_border_grey",
-                css_styles="""
-                    {
-                        background-color: #f0f0f0;
-                        margin: auto;
-                        border: 1px solid rgba(49, 51, 65, 0.2);
-                        border-radius: 0.5rem;
-                        padding: calc(1em - 1px)
-                    }
-                    """,
-                ):
-                with stylable_container(
-        key="metricinput",
-        css_styles="""
-            metricinput {
-                border-radius: 20px;
-            }
-            """,
-    ):
-                    st.metric(label='WALKING',value=str(duration_walking)+' min')
-
-    st.divider()
-
-#### WEATHER
-
-    with stylable_container(
-            key="container_with_border",
+                    key="container_with_border_grey",
+                    css_styles="""
+                        {
+                            background-color: #f0f0f0;
+                            margin: auto;
+                            border: 1px solid rgba(49, 51, 65, 0.2);
+                            border-radius: 0.5rem;
+                            padding: calc(1em - 1px)
+                        }
+                        """,
+                    ):
+                    st.markdown(f"<h5 style='text-align: center; color:#6d6d6d ;'>DESTINATION</h5>", unsafe_allow_html=True)
+                    st.markdown(f"<h3 style='text-align: center; color:#333333 ;'>{destination}</h3>", unsafe_allow_html=True)
+                    with stylable_container(
+            key="metricinput",
             css_styles="""
-                {
-                    background-color: white;
-                    margin: auto;
-                    border: 1px solid rgba(49, 51, 65, 0.2);
-                    border-radius: 0.5rem;
-                    padding: calc(1em - 1px)
+                metricinput {
+                    border-radius: 20px;
                 }
                 """,
-            ):
+        ):
+                        st.metric(label="EMPTY DOCKS", value=nb_empty_docks)
+
+        # st.divider()
+
+    #### MAP and ITINERARY
 
 
-        col1, col2,col3,col4,col5,col6,col7,col8,col9= st.columns(9)
-        with col5:
-            st.markdown("<h3 style='text-align: center; color: #333333 ;'>WEATHER </h3>", unsafe_allow_html=True)
-
-        with col6:
-            st.image('https:'+icon,width=50)
-
-
-        col1, col2,col3= st.columns(3)
-        with col1:
-            with stylable_container(
-                key="container_with_border_grey",
+        with stylable_container(
+                key="container_with_border",
                 css_styles="""
                     {
-                        background-color: #f0f0f0;
+                        background-color: white;
                         margin: auto;
                         border: 1px solid rgba(49, 51, 65, 0.2);
                         border-radius: 0.5rem;
@@ -526,89 +505,28 @@ if st.button('Predict'):
                     }
                     """,
                 ):
-                with stylable_container(
-        key="metricinput",
-        css_styles="""
-            metricinput {
-                border-radius: 20px;
-            }
-            """,
-    ):
-                    st.metric(label='TEMPERATURE',value=str(round(temperature,0))+'°C')
-
-        with col2:
             with stylable_container(
-                key="container_with_border_grey",
-                css_styles="""
-                    {
-                        background-color: #f0f0f0;
-                        margin: auto;
-                        border: 1px solid rgba(49, 51, 65, 0.2);
-                        border-radius: 0.5rem;
-                        padding: calc(1em - 1px)
-                    }
-                    """,
-                ):
-                with stylable_container(
-        key="metricinput",
-        css_styles="""
-            metricinput {
-                border-radius: 20px;
-            }
-            """,
-    ):
-                    st.metric(label='CONDITION',value=condition)
-
-        with col3:
-            with stylable_container(
-                key="container_with_border_grey",
-                css_styles="""
-                    {
-                        background-color: #f0f0f0;
-                        margin: auto;
-                        border: 1px solid rgba(49, 51, 65, 0.2);
-                        border-radius: 0.5rem;
-                        padding: calc(1em - 1px)
-                    }
-                    """,
-                ):
-                with stylable_container(
-        key="metricinput",
-        css_styles="""
-            metricinput {
-                border-radius: 20px;
-            }
-            """,
-    ):
-                    st.metric(label='RAIN %', value=prob_rain)
-
-
-    st.divider()
-
-##### CLOSEST STATIONS
-
-    with stylable_container(
-            key="container_with_border",
+            key="metricinput",
             css_styles="""
-                {
-                    background-color: white;
-                    margin: auto;
-                    border: 1px solid rgba(49, 51, 65, 0.2);
-                    border-radius: 0.5rem;
-                    padding: calc(1em - 1px)
+                metricinput {
+                    border-radius: 20px;
                 }
                 """,
-            ):
+        ):
 
-        st.markdown("<h3 style='text-align: center; color: #333333 ;'>CLOSEST STATIONS</h3>", unsafe_allow_html=True)
+                st.markdown("<h3 style='text-align: center; color:#6d6d6d ;'>Itinerary</h3>", unsafe_allow_html=True)
+                st.map(data=itinerary_df,latitude='lat',longitude='lon',zoom=12.5,size='size',color='color',use_container_width=False)
 
-        col1, col2 = st.columns(2)
-        with col1:
-            with stylable_container(
-                key="container_with_border_grey",
+        # st.divider()
+
+
+    #### TRIP DURATION
+
+        with stylable_container(
+                key="container_with_border",
                 css_styles="""
                     {
-                        background-color: #f0f0f0;
+                        background-color: white;
                         margin: auto;
                         border: 1px solid rgba(49, 51, 65, 0.2);
                         border-radius: 0.5rem;
@@ -616,23 +534,67 @@ if st.button('Predict'):
                     }
                     """,
                 ):
-                with stylable_container(
-        key="metricinput",
-        css_styles="""
-            metricinput {
-                border-radius: 20px;
-            }
-            """,
-    ):
-                    st.markdown(f"<h4 style='text-align: center; color: #333333 ;'>{closest_origin}</h4>", unsafe_allow_html=True)
-                    st.metric(label="AVAILABLE BIKES", value=nb_bikes_closest_origin)
 
-        with col2:
-            with stylable_container(
-                key="container_with_border_grey",
+
+            st.markdown("<h3 style='text-align: center; color: #6d6d6d ;'>Trip Duration</h3>", unsafe_allow_html=True)
+
+            col1, col2 = st.columns(2)
+            with col1:
+                with stylable_container(
+                    key="container_with_border_grey",
+                    css_styles="""
+                        {
+                            background-color: #f0f0f0;
+                            margin: auto;
+                            border: 1px solid rgba(49, 51, 65, 0.2);
+                            border-radius: 0.5rem;
+                            padding: calc(1em - 1px)
+                        }
+                        """,
+                    ):
+                    with stylable_container(
+            key="metricinput",
+            css_styles="""
+                metricinput {
+                    border-radius: 20px;
+                }
+                """,
+        ):
+
+                        st.metric(label='CYCLING',value=str(duration_cycle)+' min')
+
+            with col2:
+                with stylable_container(
+                    key="container_with_border_grey",
+                    css_styles="""
+                        {
+                            background-color: #f0f0f0;
+                            margin: auto;
+                            border: 1px solid rgba(49, 51, 65, 0.2);
+                            border-radius: 0.5rem;
+                            padding: calc(1em - 1px)
+                        }
+                        """,
+                    ):
+                    with stylable_container(
+            key="metricinput",
+            css_styles="""
+                metricinput {
+                    border-radius: 20px;
+                }
+                """,
+        ):
+                        st.metric(label='WALKING',value=str(duration_walking)+' min')
+
+        # st.divider()
+
+    #### WEATHER
+
+        with stylable_container(
+                key="container_with_border",
                 css_styles="""
                     {
-                        background-color: #f0f0f0;
+                        background-color: white;
                         margin: auto;
                         border: 1px solid rgba(49, 51, 65, 0.2);
                         border-radius: 0.5rem;
@@ -640,16 +602,156 @@ if st.button('Predict'):
                     }
                     """,
                 ):
+
+
+            col1, col2,col3,col4,col5,col6,col7,col8,col9= st.columns(9)
+            with col5:
+                st.markdown("<h3 style='text-align: center; color: #6d6d6d ;'>Weather  </h3>", unsafe_allow_html=True)
+
+            with col6:
+                st.image('https:'+icon,width=50)
+
+
+            col1, col2,col3= st.columns(3)
+            with col1:
                 with stylable_container(
-        key="metricinput",
-        css_styles="""
-            metricinput {
-                border-radius: 20px;
-            }
-            """,
-            ):
-                    st.markdown(f"<h4 style='text-align: center; color: #333333 ;'>{closest_destination}</h4>", unsafe_allow_html=True)
-                    st.metric(label="EMPTY DOCKS", value=nb_empty_docks_closest_destination)
+                    key="container_with_border_grey",
+                    css_styles="""
+                        {
+                            background-color: #f0f0f0;
+                            margin: auto;
+                            border: 1px solid rgba(49, 51, 65, 0.2);
+                            border-radius: 0.5rem;
+                            padding: calc(1em - 1px)
+                        }
+                        """,
+                    ):
+                    with stylable_container(
+            key="metricinput",
+            css_styles="""
+                metricinput {
+                    border-radius: 20px;
+                }
+                """,
+        ):
+                        st.metric(label='TEMPERATURE',value=str(round(temperature,0))+'°C')
+
+            with col2:
+                with stylable_container(
+                    key="container_with_border_grey",
+                    css_styles="""
+                        {
+                            background-color: #f0f0f0;
+                            margin: auto;
+                            border: 1px solid rgba(49, 51, 65, 0.2);
+                            border-radius: 0.5rem;
+                            padding: calc(1em - 1px)
+                        }
+                        """,
+                    ):
+                    with stylable_container(
+            key="metricinput",
+            css_styles="""
+                metricinput {
+                    border-radius: 20px;
+                }
+                """,
+        ):
+                        st.metric(label='CONDITION',value=condition)
+
+            with col3:
+                with stylable_container(
+                    key="container_with_border_grey",
+                    css_styles="""
+                        {
+                            background-color: #f0f0f0;
+                            margin: auto;
+                            border: 1px solid rgba(49, 51, 65, 0.2);
+                            border-radius: 0.5rem;
+                            padding: calc(1em - 1px)
+                        }
+                        """,
+                    ):
+                    with stylable_container(
+            key="metricinput",
+            css_styles="""
+                metricinput {
+                    border-radius: 20px;
+                }
+                """,
+        ):
+                        st.metric(label='RAIN %', value=prob_rain)
+
+
+        # st.divider()
+
+    ##### CLOSEST STATIONS
+
+        with stylable_container(
+                key="container_with_border",
+                css_styles="""
+                    {
+                        background-color: white;
+                        margin: auto;
+                        border: 1px solid rgba(49, 51, 65, 0.2);
+                        border-radius: 0.5rem;
+                        padding: calc(1em - 1px)
+                    }
+                    """,
+                ):
+
+            st.markdown("<h3 style='text-align: center; color: #6d6d6d ;'>Closest Bike Stations</h3>", unsafe_allow_html=True)
+
+            col1, col2 = st.columns(2)
+            with col1:
+                with stylable_container(
+                    key="container_with_border_grey",
+                    css_styles="""
+                        {
+                            background-color: #f0f0f0;
+                            margin: auto;
+                            border: 1px solid rgba(49, 51, 65, 0.2);
+                            border-radius: 0.5rem;
+                            padding: calc(1em - 1px)
+                        }
+                        """,
+                    ):
+                    with stylable_container(
+            key="metricinput",
+            css_styles="""
+                metricinput {
+                    border-radius: 20px;
+                }
+                """,
+        ):
+                        st.markdown(f"<h5 style='text-align: center; color:#6d6d6d ;'>ORIGIN</h5>", unsafe_allow_html=True)
+                        st.markdown(f"<h4 style='text-align: center; color: #333333 ;'>{closest_origin}</h4>", unsafe_allow_html=True)
+                        st.metric(label="AVAILABLE BIKES", value=nb_bikes_closest_origin)
+
+            with col2:
+                with stylable_container(
+                    key="container_with_border_grey",
+                    css_styles="""
+                        {
+                            background-color: #f0f0f0;
+                            margin: auto;
+                            border: 1px solid rgba(49, 51, 65, 0.2);
+                            border-radius: 0.5rem;
+                            padding: calc(1em - 1px)
+                        }
+                        """,
+                    ):
+                    with stylable_container(
+            key="metricinput",
+            css_styles="""
+                metricinput {
+                    border-radius: 20px;
+                }
+                """,
+                ):
+                        st.markdown(f"<h5 style='text-align: center; color:#6d6d6d ;'>DESTINATION</h5>", unsafe_allow_html=True)
+                        st.markdown(f"<h4 style='text-align: center; color: #333333 ;'>{closest_destination}</h4>", unsafe_allow_html=True)
+                        st.metric(label="EMPTY DOCKS", value=nb_empty_docks_closest_destination)
 
                 # if nb_bikes==0 and nb_empty_docks!=0:
                 #     st.markdown("<h4 style='text-align: center; color: #333333 ;'>'CLOSEST ORIGIN STATION'</h4>", unsafe_allow_html=True)

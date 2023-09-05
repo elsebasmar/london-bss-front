@@ -41,9 +41,10 @@ def add_logo_2():
                 font-size: 30px;
                 position: relative;
                 top: 100px;
+                color:white;
             }}
         </style>
-
+        
         """,
         unsafe_allow_html=True,
     )

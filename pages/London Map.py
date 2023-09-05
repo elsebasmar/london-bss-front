@@ -1,13 +1,22 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+from londonbssfront.styling import add_logo_2
+from PIL import Image
+
+our_name='DockDockGo'
+st.set_page_config(page_title='London_Map', layout="wide")
+Logo= Image.open('raw_data/Logo.png')
+Logo_url='raw_data/Logo.png'
 
 
-st.set_page_config(layout="wide")
+add_logo_2()
+with st.sidebar.container():
+    st.image(Logo,width=100)
 
 ## Titles
 
-st.title('BIKES BIKES BIKES')
+st.title('LONDON BIKE STATIONS')
 
 stations_df_st=pd.read_csv('raw_data/stations_df_st.csv')
 

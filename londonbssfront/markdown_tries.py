@@ -59,3 +59,21 @@ import streamlit as st
 # """,
 # ):
 #     timing=st.time_input('(IN HOURS)',datetime.time(1, 00),step=3600)
+
+# body {
+#   background-color: #eee;
+# }
+
+# .fullScreenFrame > div {
+#   display: flex;
+#   justify-content: center;
+# }
+
+
+####### ALL ALIGNMENTS
+
+            # text-align: center;
+            # align:center;
+            # justify-content: center;
+            # width: fit-content;
+            # margin: auto;

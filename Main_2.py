@@ -10,12 +10,12 @@ from datetime import date
 from datetime import timedelta
 from londonbssfront.params import *
 from streamlit_extras.stylable_container import stylable_container
-from streamlit_extras.let_it_rain import rain
-from londonbssfront.styling import add_logo_2
-from londonbssfront.styling import add_logo_3
-from streamlit_extras.app_logo import add_logo
+# from streamlit_extras.let_it_rain import rain
+# from londonbssfront.styling import add_logo_2
+# from londonbssfront.styling import add_logo_3
+# from streamlit_extras.app_logo import add_logo
 from PIL import Image
-from streamlit_extras.colored_header import colored_header
+# from streamlit_extras.colored_header import colored_header
 from londonbssfront.distance import dist,find_nearest
 
 
@@ -57,7 +57,7 @@ with col5:
 ################################################################################
 ### MARKDOWN
 
-### FOR METR CONTAINER
+### FOR METRIC CONTAINER
 
 st.markdown("""
 <style>
@@ -65,7 +65,7 @@ div[data-testid="metric-container"] {
    background-color: #f0f0f0;
    justify-content: center;
    padding: 5% 5% 5% 10%;
-   color: #d30000;
+   color: #af000c;
    max-width=10px;
 
 }
@@ -120,7 +120,7 @@ st.markdown(
 
     [data-baseweb="select"] > div {
     background-color: #f0f0f0;
-    color: #d30000 ;
+    color: #af000c ;
 }
     [data-baseweb="time-input"] {
         background: #f0f0f0;
@@ -131,7 +131,7 @@ st.markdown(
     input[class] {
         font-size: 110%;
         background:  #f0f0f0;
-        color: #d30000;
+        color: #af000c;
     }
     </style>
     """,
@@ -336,10 +336,10 @@ for i in range(itinerary_df.shape[0]-2):
     size_iti+=[15]
 size_iti+=[60]
 
-color_iti=['#d30000']
+color_iti=['#af000c']
 for i in range(itinerary_df.shape[0]-2):
-    color_iti+=['#d30000']
-color_iti+=['#d30000']
+    color_iti+=['#af000c']
+color_iti+=['#af000c']
 
 itinerary_df['size']=size_iti
 itinerary_df['color']=color_iti
@@ -411,7 +411,7 @@ with stylable_container(
     key="red_button",
     css_styles="""
         button {
-            background-color: #d30000;
+            background-color: #af000c;
             color: white;
             border-radius: 20px;
         }

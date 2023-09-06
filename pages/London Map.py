@@ -1,31 +1,38 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-from londonbssfront.styling import add_logo_2
 from PIL import Image
+from streamlit_extras.stylable_container import stylable_container
+
 
 our_name='DockDockGo'
 st.set_page_config(page_title='London_Map', layout="wide")
 Logo= Image.open('raw_data/Logo.png')
 Logo_url='raw_data/Logo.png'
 
+col1, col2, col3, col4,col5,col6,col7,col8,col9= st.columns(9)
+with col9:
+    st.image(Logo, use_column_width=True)
 
-add_logo_2()
-with st.sidebar.container():
-    st.image(Logo,width=100)
 
-## Titles
 
-st.title('LONDON BIKE STATIONS')
+# add_logo_2()
+# with st.sidebar.container():
+#     st.image(Logo,width=100)
 
 stations_df_st=pd.read_csv('raw_data/stations_df_st.csv')
 
-# color_dict={'Area_loc': list(stations_df_st['Area_loc'].unique())
-#                        , 'Colours': ['#ffbaba','#ff7b7b', '#ff5252', '#ff0000', '#a70000']
-#                     ,'index':[0, 1, 2, 3,4]}
-
-# color_df=pd.DataFrame(color_dict)
-
-# stations_df_st_2=stations_df_st.merge(color_df,on='Area_loc',how='left')
+# with stylable_container(
+#         key="container_with_border",
+#         css_styles="""
+#             {
+#                 background-color: white;
+#                 border: 1px solid rgba(49, 51, 65, 0.2);
+#                 border-radius: 0.5rem;
+#                 padding: calc(1em - 1px)
+#             }
+#             """,
+#         ):
+st.markdown("<h2 style='text-align: center; color:#6d6d6d ;'>LONDON MAP</h2>", unsafe_allow_html=True)
 
 st.map(data=stations_df_st,latitude='s_lat',longitude='s_lon',color='#ff000080',zoom=11,size='Size_bucket',use_container_width=True)

@@ -130,10 +130,10 @@ st.markdown(
 
 url = "https://nominatim.openstreetmap.org"
 
-stations_path=os.path.join(os.getcwd(),'londonbssfront','stations_csv')
-st.write(stations_path)
+# stations_path=os.path.join(os.getcwd(),'londonbssfront','stations_csv')
+# st.write(stations_path)
 
-stations_df=pd.read_csv(os.path.join(stations_path,'stations_df_st.csv'))
+stations_df=pd.read_csv('londonbssfront/stations_csv/stations_df_st.csv')
 
 
 ###############################################################################

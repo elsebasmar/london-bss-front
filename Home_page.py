@@ -394,8 +394,8 @@ with stylable_container(
 
         # from datetime import datetime
 
-        timing_datetime_day=(datetime.datetime.now()+timing #timedelta(hours=int(timing.strftime("%H")))).strftime("%Y-%m-%d")
-        timing_datetime_full=(datetime.datetime.now()+timing #timedelta(hours=int(timing.strftime("%H")))).strftime("%Y-%m-%d %H:00")
+        timing_datetime_day=(datetime.datetime.now()+timing) #timedelta(hours=int(timing.strftime("%H")))).strftime("%Y-%m-%d")
+        timing_datetime_full=(datetime.datetime.now()+timing) #timedelta(hours=int(timing.strftime("%H")))).strftime("%Y-%m-%d %H:00")
 
 
         for day in weather_2['forecast']['forecastday']:

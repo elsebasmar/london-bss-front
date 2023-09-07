@@ -205,7 +205,7 @@ with col2:
 ###############################################################################
 #### TIMING
 
-from datetime import datetime
+# from datetime import datetime
 
 with stylable_container(
     key="container_with_border",
@@ -231,9 +231,9 @@ with stylable_container(
         """,
 ):
 
-            departure_time=st.time_input('(IN HOURS)',datetime.time(1, 00),step=3600)
-            now=datetime.datetime.now.time()
-            timing=departure_time-now
+            departure_time=st.time_input('(IN HOURS)',time(1, 00),step=3600)
+            now=datetime.datetime.now().time()
+            timing=datetime.datetime.combine(datetime.date.today(), time_objdeparture_time)-datetime.datetime.combine(datetime.date.today(), now)
 
 ###############################################################################
 ### CODE FOR PREDICTION

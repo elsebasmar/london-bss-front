@@ -241,8 +241,8 @@ with stylable_container(
 ###############################
 ### TEST FOR MODEL
 
-model_path='londonbssfront/models/eagle_wharf_road__hoxton_model_correct_data_encoded.pkl'
-model_loaded= AutoARIMA.load(model_path)
+# model_path='londonbssfront/models/eagle_wharf_road__hoxton_model_correct_data_encoded.pkl'
+# model_loaded= AutoARIMA.load(model_path)
 
 
 ### REAL TIME NUMBERS CODE

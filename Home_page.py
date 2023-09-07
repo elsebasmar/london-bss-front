@@ -235,8 +235,6 @@ with stylable_container(
             now=datetime.datetime.now.time()
             timing=departure_time-now
 
-
-
 ###############################################################################
 ### CODE FOR PREDICTION
 

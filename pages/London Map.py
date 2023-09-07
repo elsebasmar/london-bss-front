@@ -20,7 +20,8 @@ with col9:
 # with st.sidebar.container():
 #     st.image(Logo,width=100)
 
-stations_df_st=pd.read_csv('raw_data/stations_df_st.csv')
+stations_path=os.path.join(os.getcwd(),'londonbssfront','stations_csv')
+stations_df_st=pd.read_csv(os.path.join(stations_path,'stations_df_st.csv')
 
 # with stylable_container(
 #         key="container_with_border",

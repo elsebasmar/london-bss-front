@@ -404,7 +404,7 @@ with stylable_container(
                     if hour['time']==timing_datetime_full:
                         temperature=hour['temp_c']
                         condition=hour['condition']['text']
-                        icon=hour['condition']['icon']
+                        # icon=hour['condition']['icon']
                         prob_rain=hour['chance_of_rain']
 
 
@@ -615,8 +615,8 @@ with stylable_container(
             with col5:
                 st.markdown("<h3 style='text-align: center; color: #6d6d6d ;'>Weather  </h3>", unsafe_allow_html=True)
 
-            with col6:
-                st.image('https:'+icon,width=50)
+            # with col6:
+            #     st.image('https:'+icon,width=50)
 
 
             col1, col2,col3= st.columns(3)

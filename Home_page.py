@@ -29,14 +29,14 @@ from darts import TimeSeries
 ###############################################################################
 ###### THEMING
 
-logo_path=os.path.join(os.getcwd(),'londonbssfront','images')
+
 
 our_name='DockDockGo'
 st.set_page_config(page_title='DOCKDOCKGO', layout="wide")
 
+logo_path=os.path.join(os.getcwd(),'londonbssfront','images')
 Logo=Image.open(os.path.join(logo_path,'Logo.png'))
 Logo_full=Image.open(os.path.join(logo_path,'DDG_logo.png'))
-
 st.image(Logo_full, use_column_width=True)
 
 ################################################################################
@@ -349,7 +349,7 @@ with stylable_container(
 #### WEATHER CODE
 
         url_2='http://api.weatherapi.com/v1/forecast.json'
-        parameters={'key':WEATHER_KEY,'q':'London','days':2}
+        parameters={'key':st.secrets['WEATHER_KEY'],'q':'London','days':2}
         response_2= requests.get(url_2,params=parameters)
         weather_2 = response_2.json()
 
@@ -357,6 +357,7 @@ with stylable_container(
 
         timing_datetime_day=(datetime.now()+timedelta(hours=int(timing.strftime("%H")))).strftime("%Y-%m-%d")
         timing_datetime_full=(datetime.now()+timedelta(hours=int(timing.strftime("%H")))).strftime("%Y-%m-%d %H:00")
+
 
         for day in weather_2['forecast']['forecastday']:
             if day['date']==timing_datetime_day:

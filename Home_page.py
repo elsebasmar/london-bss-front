@@ -392,10 +392,10 @@ with stylable_container(
         response_2= requests.get(url_2,params=parameters)
         weather_2 = response_2.json()
 
-        from datetime import datetime
+        # from datetime import datetime
 
-        timing_datetime_day=(datetime.now()+timedelta(hours=int(timing.strftime("%H")))).strftime("%Y-%m-%d")
-        timing_datetime_full=(datetime.now()+timedelta(hours=int(timing.strftime("%H")))).strftime("%Y-%m-%d %H:00")
+        timing_datetime_day=(datetime.datetime.now()+timedelta(hours=int(timing.strftime("%H")))).strftime("%Y-%m-%d")
+        timing_datetime_full=(datetime.datetime.now()+timedelta(hours=int(timing.strftime("%H")))).strftime("%Y-%m-%d %H:00")
 
 
         for day in weather_2['forecast']['forecastday']:

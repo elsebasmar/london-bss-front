@@ -3,6 +3,7 @@ import datetime
 import pandas as pd
 import numpy as np
 import requests
+import os
 
 
 from datetime import date
@@ -18,46 +19,27 @@ from PIL import Image
 # from streamlit_extras.colored_header import colored_header
 from londonbssfront.distance import dist,find_nearest
 
+#####
+
+import darts
+from darts.models import AutoARIMA
+from darts import TimeSeries
 
 ###############################################################################
 ###### THEMING
 
-
 our_name='DockDockGo'
-st.set_page_config(page_title='About_Us', layout="wide")
-Logo= Image.open('raw_data/Logo.png')
-Logo_url='raw_data/Logo.png'
+st.set_page_config(page_title='DOCKDOCKGO', layout="wide")
 
-
-# st.markdown(
-#         """
-#         <style>
-#         .stSideBarNav{
-# color:red;
-# }
-#     [data-baseweb="sidebarnav"] > div {
-#     background-color: white;
-#     color: white;
-#             }
-#         </style>
-#         """,
-#         unsafe_allow_html=True,
-#     )
-
-
-# add_logo_2()
-
-# with st.sidebar.container():
-#     st.image(Logo,width=100)
-
-col1, col2, col3, col4,col5,col6,col7,col8,col9= st.columns(9)
-with col5:
-    st.image(Logo, use_column_width=True)
+logo_path=os.path.join(os.getcwd(),'londonbssfront','images')
+Logo=Image.open(os.path.join(logo_path,'Logo.png'))
+Logo_full=Image.open(os.path.join(logo_path,'DDG_logo.png'))
+st.image(Logo_full, use_column_width=True)
 
 ################################################################################
 ### MARKDOWN
 
-### FOR METRIC CONTAINER
+### MARKDOWN FOR METRIC CONTAINER
 
 st.markdown("""
 <style>
@@ -80,7 +62,7 @@ div[data-testid="metric-container"] > label > div {
 """
 , unsafe_allow_html=True)
 
-### FOR TEXT INPUT
+### MARKDOWN FOR TEXT INPUT
 
 st.markdown("""
 <style>
@@ -105,7 +87,7 @@ color: black;
 </style>
 """, unsafe_allow_html=True)
 
-### FOR TIME INPUT
+### MARKDOWN FOR TIME INPUT
 
 st.markdown(
     """
@@ -140,24 +122,16 @@ st.markdown(
 
 
 
-# components.html(
-#     """
-# <script>
-# const elements = window.parent.document.querySelectorAll('.stNumberInput div[data-baseweb="input"] > div')
-# console.log(elements)
-# elements[1].style.backgroundColor = 'red'
-# </script>
-# """,
-#     height=0,
-#     width=0,
-# )
-
-
 ##############################################################################
 ### CALLING API
 
 url = "https://nominatim.openstreetmap.org"
-stations_df=pd.read_csv('raw_data/stations_df_st.csv')
+
+# stations_path=os.path.join(os.getcwd(),'londonbssfront','stations_csv')
+# st.write(stations_path)
+
+stations_df=pd.read_csv('londonbssfront/stations_csv/stations_df_st.csv')
+
 
 ###############################################################################
 ### ORIGIN AND DESTINATION INPUTS
@@ -185,7 +159,7 @@ with col1:
         }
         """,
 ):
-            origin_address=st.text_input(' ','N1 7FZ')
+            origin_address=st.text_input(' ','Eagle Wharf Road, Hoxton')
             params = {
                     'q': origin_address,
                     'format': 'json'
@@ -227,11 +201,11 @@ with col2:
             lon_destination=response[0]['lon']
             destination=find_nearest(float(lat_destination),float(lon_destination),stations_df)
 
-# st.divider()
-# st.markdown("""<hr style="height:1px;border:none;color:#333333;background-color:#333333;" /> """, unsafe_allow_html=True)
 
 ###############################################################################
 #### TIMING
+
+from datetime import datetime
 
 with stylable_container(
     key="container_with_border",
@@ -257,15 +231,14 @@ with stylable_container(
         """,
 ):
 
-            timing=st.time_input('(IN HOURS)',datetime.time(1, 00),step=3600)
-
-
-# st.divider()
+            departure_time=st.time_input('(IN HOURS)',datetime.time(1, 00),step=3600)
+            now=datetime.datetime.now.time()
+            timing=departure_time-now
 
 ###############################################################################
-### Connecting to the API
+### CODE FOR PREDICTION
 
-##### CODE
+###############################
 
 ### REAL TIME NUMBERS CODE
 
@@ -280,6 +253,8 @@ for station in stations:
         for add_property in station['additionalProperties']:
             if add_property['key'] == 'NbBikes':
                 nb_bikes=add_property['value']
+            # if add_property['key'] == 'NbDocks':
+            #     nb_docks_origin=nb_bikes=add_property['value']
 
 for station in stations:
     if station['commonName']==destination:
@@ -288,123 +263,17 @@ for station in stations:
         for add_property in station['additionalProperties']:
             if add_property['key'] == 'NbEmptyDocks':
                 nb_empty_docks=add_property['value']
-
-#### ITINERARY CODE
-
-
-
-# stations_dict={'Stations': [origin, destination],
-#                'Latitude': [origin_lat,destination_lat],
-#                'Longitude':[origin_lon,destination_lon]}
-
-# stations_points=pd.DataFrame(stations_dict)
-
-## ITINERARY JOURNEY
-
-url=f'https://api.tfl.gov.uk/Journey/JourneyResults/{origin_lat},{origin_lon}/to/{destination_lat},{destination_lon}'
-parameters_iti={'mode':'cycle','cyclepreference':'AllTheWay'}
-response_iti= requests.get(url,params=parameters_iti)
-journey=response_iti.json()
-
-steps=journey['journeys'][0]['legs'][0]['instruction']['steps']
-
-steps_lat=[origin_lat]
-steps_lon=[origin_lon]
-for step in steps:
-    steps_lat.append(step['latitude'])
-    steps_lon.append(step['longitude'])
-
-steps_lat.append(destination_lat)
-steps_lon.append(destination_lon)
-
-steps_lat_extra=[origin_lat]
-steps_lon_extra=[origin_lon]
-
-for i in range(1,len(steps_lat)-1):
-   steps_lat_extra+=list(np.linspace(steps_lat[i-1],steps_lat[i],30))
-   steps_lon_extra+=list(np.linspace(steps_lon[i-1],steps_lon[i],30))
-
-steps_lat_extra.append(destination_lat)
-steps_lon_extra.append(destination_lon)
-
-itinerary_df=pd.DataFrame()
-itinerary_df['lat']=steps_lat_extra
-itinerary_df['lon']=steps_lon_extra
-
-size_iti=[60]
-for i in range(itinerary_df.shape[0]-2):
-    size_iti+=[15]
-size_iti+=[60]
-
-color_iti=['#af000c']
-for i in range(itinerary_df.shape[0]-2):
-    color_iti+=['#af000c']
-color_iti+=['#af000c']
-
-itinerary_df['size']=size_iti
-itinerary_df['color']=color_iti
-
-## ITINERARY DURATION
-
-duration_cycle=journey['journeys'][0]['legs'][0]['duration']
-
-parameters_walking={'mode':'walking'}
-response_2= requests.get(url,params=parameters_walking)
-journey_2=response_2.json()
-duration_walking=journey_2['journeys'][0]['legs'][0]['duration']
+            if add_property['key'] == 'NbDocks':
+                nb_docks_destination=nb_bikes=add_property['value']
 
 
+###############################################################################
 
-#### WEATHER CODE
-
-url_2='http://api.weatherapi.com/v1/forecast.json'
-parameters={'key':WEATHER_KEY,'q':'London','days':2}
-response_2= requests.get(url_2,params=parameters)
-weather_2 = response_2.json()
-
-from datetime import datetime
-
-timing_datetime_day=(datetime.now()+timedelta(hours=int(timing.strftime("%H")))).strftime("%Y-%m-%d")
-timing_datetime_full=(datetime.now()+timedelta(hours=int(timing.strftime("%H")))).strftime("%Y-%m-%d %H:00")
-
-for day in weather_2['forecast']['forecastday']:
-    if day['date']==timing_datetime_day:
-        for hour in day['hour']:
-            if hour['time']==timing_datetime_full:
-                temperature=hour['temp_c']
-                condition=hour['condition']['text']
-                icon=hour['condition']['icon']
-                prob_rain=hour['chance_of_rain']
+#####PREDICTION
 
 
-#### CLOSEST STATIONS CODE
-
-
-stations_f2_origin=stations_df.drop(stations_df[stations_df['Station_name']==origin].index[0],axis=0)
-stations_f2_destination=stations_df.drop(stations_df[stations_df['Station_name']==destination].index[0],axis=0)
-
-closest_origin=find_nearest(float(lat_origin),float(lon_origin),stations_f2_origin)
-closest_destination=find_nearest(float(lat_destination),float(lon_destination),stations_f2_destination)
-
-for station in stations:
-    if station['commonName']==closest_origin:
-        origin_lat=station['lat']
-        origin_lon=station['lon']
-        for add_property in station['additionalProperties']:
-            if add_property['key'] == 'NbBikes':
-                nb_bikes_closest_origin=add_property['value']
-
-for station in stations:
-    if station['commonName']==closest_destination:
-        destination_lat=station['lat']
-        destination_lon=station['lon']
-        for add_property in station['additionalProperties']:
-            if add_property['key'] == 'NbEmptyDocks':
-                nb_empty_docks_closest_destination=add_property['value']
-
-##### IN THE ST
-
-#### REAL TIME NUMBERS
+origin_m=origin.strip().lower().replace(',',' ').replace('.','').replace('(','').replace(')','').replace('&','').replace(' ','_').replace("'","")
+destination_m=destination.strip().lower().replace(',',' ').replace('.','').replace('(','').replace(')','').replace('&','').replace(' ','_').replace("'","")
 
 
 with stylable_container(
@@ -418,7 +287,198 @@ with stylable_container(
         """,
 ):
     if st.button("Predict"):
+        origin_full_df = pd.read_csv(f'londonbssfront/models_csv/processed_all_{origin_m}_2020-01-01_2023-06-19_full_data_4.csv')
+        origin_full_df['startdate'] = pd.to_datetime(origin_full_df['startdate']).dt.tz_localize(None)
+        origin_full_df.drop(columns=['year', 'month', 'day', 'hour', 'weekday'], inplace=True)
 
+<<<<<<< HEAD:Home_page.py
+       origin_full_df = pd.read_csv(f'processed_all_{origin_m}_2020-01-01_2023-06-19_full_data_4.csv')
+       origin_full_df['startdate'] = pd.to_datetime(origin_full_df['startdate']).dt.tz_localize(None)
+       origin_full_df.drop(columns=['year', 'month', 'day', 'hour', 'weekday'], inplace=True)
+
+       origin_model_path='londonbssfront/models/{origin_m}_model_correct_data_encoded.pkl'
+       origin_model_loaded= AutoARIMA.load(origin_model_path)
+
+       origin_series = TimeSeries.from_dataframe(origin_full_df, time_col='startdate', value_cols=station, fill_missing_dates=True, freq='H', fillna_value=0)
+       origin_train, origin_val = origin_series.split_before(pd.Timestamp('20230615'))
+
+       covariates = ['elisabeth_line', 'lockdown','strike', 'school_holidays', 'daytime', 'London_zone_Central',
+       'London_zone_North', 'London_zone_West', 'London_zone_South_West',
+       'London_zone_South_East', 'London_zone_East', 'Event', 'temperature',
+       'rainfall', 'snowfall', 'cloudcover', 'wind_speed', 'wind_direction']
+
+       origin_cov_series = TimeSeries.from_dataframe(origin_full_df, time_col='startdate', value_cols=covariates, fill_missing_dates=True, freq='H', fillna_value=0)
+
+       origin_prediction = model_loaded.predict(timing,future_covariates=origin_cov_series)
+
+
+       destination_full_df = pd.read_csv(f'processed_all_{destination_m}_2020-01-01_2023-06-19_full_data_4.csv')
+       destination_full_df['startdate'] = pd.to_datetime(destination_full_df['startdate']).dt.tz_localize(None)
+       destination_full_df.drop(columns=['year', 'month', 'day', 'hour', 'weekday'], inplace=True)
+
+       destination_model_path='londonbssfront/models/{destination_m}_model_correct_data_encoded.pkl'
+       destination_model_loaded= AutoARIMA.load(destination_model_path)
+
+       destination_series = TimeSeries.from_dataframe(destination_full_df, time_col='startdate', value_cols=station, fill_missing_dates=True, freq='H', fillna_value=0)
+       destination_train, val = destination_series.split_before(pd.Timestamp('20230615'))
+
+       destination_cov_series = TimeSeries.from_dataframe(destination_full_df, time_col='startdate', value_cols=covariates, fill_missing_dates=True, freq='H', fillna_value=0)
+
+       destination_prediction = model_loaded.predict(timing + 1,future_covariates=cov_series)
+
+       # origin_prediction [-1] is our number of bikes at origin
+       # destination_prediction [-1] is our number of empty docks at destination
+
+       st.write(origin_prediction)
+       st.write(destination_prediction)
+
+## ITINERARY JOURNEY
+=======
+        origin_model_path='londonbssfront/models/{origin_m}_model_correct_data_encoded.pkl'
+        origin_model_loaded= AutoARIMA.load(origin_model_path)
+
+        origin_series = TimeSeries.from_dataframe(origin_full_df, time_col='startdate', value_cols=station, fill_missing_dates=True, freq='H', fillna_value=0)
+        origin_train, origin_val = origin_series.split_before(pd.Timestamp('20230615'))
+
+        covariates = ['elisabeth_line', 'lockdown', 'strike', 'school_holidays', 'daytime', 'London_zone_Central',
+        'London_zone_North', 'London_zone_West', 'London_zone_South_West',
+        'London_zone_South_East', 'London_zone_East', 'Event', 'temperature',
+        'rainfall', 'snowfall', 'cloudcover', 'wind_speed', 'wind_direction']
+
+        origin_cov_series = TimeSeries.from_dataframe(origin_full_df, time_col='startdate', value_cols=covariates, fill_missing_dates=True, freq='H', fillna_value=0)
+
+        origin_prediction = model_loaded.predict(timing,future_covariates=origin_cov_series)
+
+        # origin_prediction [-1] is our number of bikes at origin
+        st.write(origin_prediction)
+        st.write(origin_prediction[-1])
+
+        destination_full_df = pd.read_csv(f'londonbssfront/models_csv/processed_all_{destination_m}_2020-01-01_2023-06-19_full_data_4.csv')
+        destination_full_df['startdate'] = pd.to_datetime(destination_full_df['startdate']).dt.tz_localize(None)
+        destination_full_df.drop(columns=['year', 'month', 'day', 'hour', 'weekday'], inplace=True)
+
+        destination_model_path='londonbssfront/models/{destination_m}_model_correct_data_encoded.pkl'
+        destination_model_loaded= AutoARIMA.load(destination_model_path)
+
+        destination_series = TimeSeries.from_dataframe(destination_full_df, time_col='startdate', value_cols=station, fill_missing_dates=True, freq='H', fillna_value=0)
+        destination_train, val = destination_series.split_before(pd.Timestamp('20230615'))
+
+        destination_cov_series = TimeSeries.from_dataframe(destination_full_df, time_col='startdate', value_cols=covariates, fill_missing_dates=True, freq='H', fillna_value=0)
+
+        destination_prediction = model_loaded.predict(timing + 1,future_covariates=cov_series)
+
+
+        # destination_prediction [-1] is our number of empty docks at destination
+
+        st.write(destination_prediction)
+        st.write(destination_prediction[-1])
+
+      ## ITINERARY JOURNEY
+>>>>>>> master:streamlit_app.py
+
+        url=f'https://api.tfl.gov.uk/Journey/JourneyResults/{origin_lat},{origin_lon}/to/{destination_lat},{destination_lon}'
+        parameters_iti={'mode':'cycle','cyclepreference':'AllTheWay'}
+        response_iti= requests.get(url,params=parameters_iti)
+        journey=response_iti.json()
+
+        steps=journey['journeys'][0]['legs'][0]['instruction']['steps']
+
+        steps_lat=[origin_lat]
+        steps_lon=[origin_lon]
+        for step in steps:
+            steps_lat.append(step['latitude'])
+            steps_lon.append(step['longitude'])
+
+        steps_lat.append(destination_lat)
+        steps_lon.append(destination_lon)
+
+        steps_lat_extra=[origin_lat]
+        steps_lon_extra=[origin_lon]
+
+        for i in range(1,len(steps_lat)):
+            steps_lat_extra+=list(np.linspace(steps_lat[i-1],steps_lat[i],30))
+            steps_lon_extra+=list(np.linspace(steps_lon[i-1],steps_lon[i],30))
+
+            steps_lat_extra.append(destination_lat)
+            steps_lon_extra.append(destination_lon)
+
+        itinerary_df=pd.DataFrame()
+        itinerary_df['lat']=steps_lat_extra
+        itinerary_df['lon']=steps_lon_extra
+
+        size_iti=[60]
+        for i in range(itinerary_df.shape[0]-2):
+            size_iti+=[15]
+        size_iti+=[60]
+
+        color_iti=['#af000c']
+        for i in range(itinerary_df.shape[0]-2):
+            color_iti+=['#af000c']
+        color_iti+=['#af000c']
+
+        itinerary_df['size']=size_iti
+        itinerary_df['color']=color_iti
+
+## TRIP DURATION COMPARISON
+
+        duration_cycle=journey['journeys'][0]['legs'][0]['duration']
+
+        parameters_walking={'mode':'walking'}
+        response_2= requests.get(url,params=parameters_walking)
+        journey_2=response_2.json()
+        duration_walking=journey_2['journeys'][0]['legs'][0]['duration']
+
+
+#### WEATHER CODE
+
+        url_2='http://api.weatherapi.com/v1/forecast.json'
+        parameters={'key':st.secrets['WEATHER_KEY'],'q':'London','days':2}
+        response_2= requests.get(url_2,params=parameters)
+        weather_2 = response_2.json()
+
+        from datetime import datetime
+
+        timing_datetime_day=(datetime.now()+timedelta(hours=int(timing.strftime("%H")))).strftime("%Y-%m-%d")
+        timing_datetime_full=(datetime.now()+timedelta(hours=int(timing.strftime("%H")))).strftime("%Y-%m-%d %H:00")
+
+
+        for day in weather_2['forecast']['forecastday']:
+            if day['date']==timing_datetime_day:
+                for hour in day['hour']:
+                    if hour['time']==timing_datetime_full:
+                        temperature=hour['temp_c']
+                        condition=hour['condition']['text']
+                        icon=hour['condition']['icon']
+                        prob_rain=hour['chance_of_rain']
+
+
+#### CLOSEST STATIONS CODE
+
+
+        stations_f2_origin=stations_df.drop(stations_df[stations_df['Station_name']==origin].index[0],axis=0)
+        stations_f2_destination=stations_df.drop(stations_df[stations_df['Station_name']==destination].index[0],axis=0)
+
+        closest_origin=find_nearest(float(lat_origin),float(lon_origin),stations_f2_origin)
+        closest_destination=find_nearest(float(lat_destination),float(lon_destination),stations_f2_destination)
+
+        for station in stations:
+            if station['commonName']==closest_origin:
+                origin_lat=station['lat']
+                origin_lon=station['lon']
+                for add_property in station['additionalProperties']:
+                    if add_property['key'] == 'NbBikes':
+                        nb_bikes_closest_origin=add_property['value']
+
+        for station in stations:
+            if station['commonName']==closest_destination:
+                destination_lat=station['lat']
+                destination_lon=station['lon']
+                for add_property in station['additionalProperties']:
+                    if add_property['key'] == 'NbEmptyDocks':
+                        nb_empty_docks_closest_destination=add_property['value']
+
+###############################################################################
+# IN THE STREAMLIT
         with stylable_container(
         key="container_with_border",
         css_styles="""
@@ -430,9 +490,6 @@ with stylable_container(
             }
             """,
     ):
-
-
-
             st.markdown("<h3 style='text-align: center; color: #6d6d6d ;'>Prediction</h3>", unsafe_allow_html=True)
 
             col1, col2 = st.columns(2)
@@ -488,10 +545,9 @@ with stylable_container(
         ):
                         st.metric(label="EMPTY DOCKS", value=nb_empty_docks)
 
-        # st.divider()
 
-    #### MAP and ITINERARY
 
+#### MAP and ITINERARY
 
         with stylable_container(
                 key="container_with_border",
@@ -513,12 +569,8 @@ with stylable_container(
                 }
                 """,
         ):
-
                 st.markdown("<h3 style='text-align: center; color:#6d6d6d ;'>Itinerary</h3>", unsafe_allow_html=True)
                 st.map(data=itinerary_df,latitude='lat',longitude='lon',zoom=12.5,size='size',color='color',use_container_width=False)
-
-        # st.divider()
-
 
     #### TRIP DURATION
 
@@ -586,7 +638,6 @@ with stylable_container(
         ):
                         st.metric(label='WALKING',value=str(duration_walking)+' min')
 
-        # st.divider()
 
     #### WEATHER
 
@@ -753,38 +804,20 @@ with stylable_container(
                         st.markdown(f"<h4 style='text-align: center; color: #333333 ;'>{closest_destination}</h4>", unsafe_allow_html=True)
                         st.metric(label="EMPTY DOCKS", value=nb_empty_docks_closest_destination)
 
-                # if nb_bikes==0 and nb_empty_docks!=0:
-                #     st.markdown("<h4 style='text-align: center; color: #333333 ;'>'CLOSEST ORIGIN STATION'</h4>", unsafe_allow_html=True)
-                #     st.write(closest_origin)
-                #     st.metric(label="AVAILABLE BIKES", value=nb_bikes_closest_origin)
+        col1, col2, col3, col4,col5,col6,col7,col8,col9= st.columns(9)
+        with col9:
+            st.image(Logo, use_column_width=True)
 
 
-                # elif nb_bikes==0 and nb_empty_docks!=0:
-                #     st.markdown("<h4 style='text-align: center; color: #333333 ;'>'CLOSEST DESTINATION STATION'</h4>", unsafe_allow_html=True)
-                #     st.write(closest_destination)
-                #     st.metric(label="EMPTY DOCKS", value=nb_empty_docks_closest_destination)
-
-                # elif nb_bikes==0 and nb_empty_docks!=0:
-                #     col1, col2 = st.columns(2)
-                #     with col1:
-                #         st.markdown("<h4 style='text-align: center; color: #333333 ;'>'CLOSEST ORIGIN STATION'</h4>", unsafe_allow_html=True)
-                #         st.write(closest_origin)
-                #         st.metric(label="AVAILABLE BIKES", value=nb_bikes_closest_origin)
-
-                #     with col2:
-                #         st.markdown("<h4 style='text-align: center; color: #333333 ;'>'CLOSEST DESTINATION STATION'</h4>", unsafe_allow_html=True)
-                #         st.write(closest_destination)
-                #         st.metric(label="EMPTY DOCKS", value=nb_empty_docks_closest_destination)
-
-            # ### This is for test, remove
-            #     else:
-            #         col1, col2 = st.columns(2)
-            #         with col1:
-            #             st.subheader('CLOSEST ORIGIN STATION')
-            #             st.write(closest_origin)
-            #             st.metric(label="AVAILABLE BIKES", value=nb_bikes_closest_origin)
-
-            #         with col2:
-            #             st.subheader('CLOSEST DESTINATION STATION')
-            #             st.write(closest_destination)
-            #             st.metric(label="EMPTY DOCKS", value=nb_empty_docks_closest_destination)
+        with stylable_container(
+    key="red_button",
+    css_styles="""
+        button {
+            background-color: #af000c;
+            color: white;
+            border-radius: 20px;
+        }
+        """,
+):
+            if st.button("Reload"):
+                None

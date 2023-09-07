@@ -289,7 +289,7 @@ with stylable_container(
         """,
 ):
     if st.button("Predict"):
-        origin_full_df = pd.read_csv(f'processed_all_{origin_m}_2020-01-01_2023-06-19_full_data_4.csv')
+        origin_full_df = pd.read_csv(f'londonbssfront/models_csv/processed_all_{origin_m}_2020-01-01_2023-06-19_full_data_4.csv')
         origin_full_df['startdate'] = pd.to_datetime(origin_full_df['startdate']).dt.tz_localize(None)
         origin_full_df.drop(columns=['year', 'month', 'day', 'hour', 'weekday'], inplace=True)
 
@@ -299,7 +299,7 @@ with stylable_container(
         origin_series = TimeSeries.from_dataframe(origin_full_df, time_col='startdate', value_cols=station, fill_missing_dates=True, freq='H', fillna_value=0)
         origin_train, origin_val = origin_series.split_before(pd.Timestamp('20230615'))
 
-        covariates = ['elisabeth_line', 'lockdown','strike', 'school_holidays', 'daytime', 'London_zone_Central',
+        covariates = ['elisabeth_line', 'lockdown', 'strike', 'school_holidays', 'daytime', 'London_zone_Central',
         'London_zone_North', 'London_zone_West', 'London_zone_South_West',
         'London_zone_South_East', 'London_zone_East', 'Event', 'temperature',
         'rainfall', 'snowfall', 'cloudcover', 'wind_speed', 'wind_direction']
@@ -312,7 +312,7 @@ with stylable_container(
         st.write(origin_prediction)
         st.write(origin_prediction[-1])
 
-        destination_full_df = pd.read_csv(f'processed_all_{destination_m}_2020-01-01_2023-06-19_full_data_4.csv')
+        destination_full_df = pd.read_csv(f'londonbssfront/models_csv/processed_all_{destination_m}_2020-01-01_2023-06-19_full_data_4.csv')
         destination_full_df['startdate'] = pd.to_datetime(destination_full_df['startdate']).dt.tz_localize(None)
         destination_full_df.drop(columns=['year', 'month', 'day', 'hour', 'weekday'], inplace=True)
 

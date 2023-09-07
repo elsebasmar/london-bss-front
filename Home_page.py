@@ -25,11 +25,8 @@ import darts
 from darts.models import AutoARIMA
 from darts import TimeSeries
 
-
 ###############################################################################
 ###### THEMING
-
-
 
 our_name='DockDockGo'
 st.set_page_config(page_title='DOCKDOCKGO', layout="wide")
@@ -208,6 +205,8 @@ with col2:
 ###############################################################################
 #### TIMING
 
+from datetime import datetime
+
 with stylable_container(
     key="container_with_border",
     css_styles="""
@@ -232,7 +231,9 @@ with stylable_container(
         """,
 ):
 
-            timing=st.time_input('(IN HOURS)',datetime.time(1, 00),step=3600)
+            departure_time=st.time_input('(IN HOURS)',datetime.time(1, 00),step=3600)
+            now=(datetime.now().strftime("%H:00")
+            timing=departure_time-now
 
 
 
@@ -291,6 +292,7 @@ with stylable_container(
         """,
 ):
     if st.button("Predict"):
+
 ## ITINERARY JOURNEY
 
         url=f'https://api.tfl.gov.uk/Journey/JourneyResults/{origin_lat},{origin_lon}/to/{destination_lat},{destination_lon}'

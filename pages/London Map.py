@@ -7,21 +7,23 @@ from streamlit_extras.stylable_container import stylable_container
 
 our_name='DockDockGo'
 st.set_page_config(page_title='London_Map', layout="wide")
-Logo= Image.open('raw_data/Logo.png')
-Logo_url='raw_data/Logo.png'
+
+logo_path=os.path.join(os.getcwd(),'londonbssfront','images')
+
+Logo=Image.open(os.path.join(logo_path,'Logo.png'))
+Logo_full=Image.open(os.path.join(logo_path,'DDG_logo.png'))
 
 col1, col2, col3, col4,col5,col6,col7,col8,col9= st.columns(9)
 with col9:
     st.image(Logo, use_column_width=True)
 
 
-
 # add_logo_2()
 # with st.sidebar.container():
 #     st.image(Logo,width=100)
+# stations_path=os.path.join(os.getcwd(),'londonbssfront','stations_csv')
 
-stations_path=os.path.join(os.getcwd(),'londonbssfront','stations_csv')
-stations_df_st=pd.read_csv(os.path.join(stations_path,'stations_df_st.csv')
+stations_df_st=pd.read_csv('londonbssfront/stations_csv/stations_df_st.csv')
 
 # with stylable_container(
 #         key="container_with_border",

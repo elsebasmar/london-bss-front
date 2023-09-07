@@ -6,7 +6,7 @@ import requests
 import os
 
 
-from datetime import date
+from datetime import date, time
 # from datetime import datetime
 from datetime import timedelta
 from londonbssfront.params import *

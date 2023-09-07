@@ -231,9 +231,9 @@ with stylable_container(
         """,
 ):
 
-            timing=st.time_input('(IN HOURS)',datetime.time(1, 00),step=3600)
-            # now=datetime.now().strftime("%H:00")
-            # timing=departure_time-now
+            departure_time=st.time_input('(IN HOURS)',datetime.time(1, 00),step=3600)
+            now=datetime.datetime.now.time()
+            timing=departure_time-now
 
 
 

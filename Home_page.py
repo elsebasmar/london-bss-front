@@ -241,8 +241,8 @@ with stylable_container(
 ###############################
 ### TEST FOR MODEL
 
-model_path='londonbssfront/models/eagle_wharf_road__hoxton_model_correct_data_encoded.pkl'
-model_loaded= AutoARIMA.load(model_path)
+# model_path='londonbssfront/models/eagle_wharf_road__hoxton_model_correct_data_encoded.pkl'
+# model_loaded= AutoARIMA.load(model_path)
 
 
 ### REAL TIME NUMBERS CODE
@@ -392,10 +392,10 @@ with stylable_container(
         response_2= requests.get(url_2,params=parameters)
         weather_2 = response_2.json()
 
-        from datetime import datetime
+        # from datetime import datetime
 
-        timing_datetime_day=(datetime.now()+timedelta(hours=int(timing.strftime("%H")))).strftime("%Y-%m-%d")
-        timing_datetime_full=(datetime.now()+timedelta(hours=int(timing.strftime("%H")))).strftime("%Y-%m-%d %H:00")
+        timing_datetime_day=(datetime.datetime.now()+timing) #timedelta(hours=int(timing.strftime("%H")))).strftime("%Y-%m-%d")
+        timing_datetime_full=(datetime.datetime.now()+timing) #timedelta(hours=int(timing.strftime("%H")))).strftime("%Y-%m-%d %H:00")
 
 
         for day in weather_2['forecast']['forecastday']:
@@ -404,7 +404,6 @@ with stylable_container(
                     if hour['time']==timing_datetime_full:
                         temperature=hour['temp_c']
                         condition=hour['condition']['text']
-                        icon=hour['condition']['icon']
                         prob_rain=hour['chance_of_rain']
 
 
@@ -615,8 +614,7 @@ with stylable_container(
             with col5:
                 st.markdown("<h3 style='text-align: center; color: #6d6d6d ;'>Weather  </h3>", unsafe_allow_html=True)
 
-            with col6:
-                st.image('https:'+icon,width=50)
+
 
 
             col1, col2,col3= st.columns(3)

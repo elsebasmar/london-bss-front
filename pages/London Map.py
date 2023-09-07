@@ -8,15 +8,15 @@ from streamlit_extras.stylable_container import stylable_container
 our_name='DockDockGo'
 st.set_page_config(page_title='London_Map', layout="wide")
 
-logo_path=os.path.join(os.getcwd(),'londonbssfront','images')
+# logo_path=os.path.join(os.getcwd(),'londonbssfront','images')
 
-Logo=Image.open(os.path.join(logo_path,'Logo.png'))
-Logo_full=Image.open(os.path.join(logo_path,'DDG_logo.png'))
+Logo=Image.open('londonbssfront/images/Logo.png')
+Logo_full=Image.open('londonbssfront/images/DDGLogo.png'))
+
 
 col1, col2, col3, col4,col5,col6,col7,col8,col9= st.columns(9)
 with col9:
     st.image(Logo, use_column_width=True)
-
 
 # add_logo_2()
 # with st.sidebar.container():

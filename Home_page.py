@@ -232,7 +232,7 @@ with stylable_container(
 ):
 
             departure_time=st.time_input('(IN HOURS)',datetime.time(1, 00),step=3600)
-            now=(datetime.now().strftime("%H:00")
+            now=datetime.datetime.now.time()
             timing=departure_time-now
 
 
@@ -289,48 +289,48 @@ with stylable_container(
         """,
 ):
     if st.button("Predict"):
-       origin_full_df = pd.read_csv(f'processed_all_{origin_m}_2020-01-01_2023-06-19_full_data_4.csv')
-       origin_full_df['startdate'] = pd.to_datetime(origin_full_df['startdate']).dt.tz_localize(None)
-       origin_full_df.drop(columns=['year', 'month', 'day', 'hour', 'weekday'], inplace=True)
-       
-       origin_model_path='londonbssfront/models/{origin_m}_model_correct_data_encoded.pkl'
-       origin_model_loaded= AutoARIMA.load(origin_model_path)
+        origin_full_df = pd.read_csv(f'processed_all_{origin_m}_2020-01-01_2023-06-19_full_data_4.csv')
+        origin_full_df['startdate'] = pd.to_datetime(origin_full_df['startdate']).dt.tz_localize(None)
+        origin_full_df.drop(columns=['year', 'month', 'day', 'hour', 'weekday'], inplace=True)
 
-       origin_series = TimeSeries.from_dataframe(origin_full_df, time_col='startdate', value_cols=station, fill_missing_dates=True, freq='H', fillna_value=0)
-       origin_train, origin_val = origin_series.split_before(pd.Timestamp('20230615'))
-       
-       covariates = ['elisabeth_line', 'lockdown','strike', 'school_holidays', 'daytime', 'London_zone_Central',
-       'London_zone_North', 'London_zone_West', 'London_zone_South_West',
-       'London_zone_South_East', 'London_zone_East', 'Event', 'temperature',
-       'rainfall', 'snowfall', 'cloudcover', 'wind_speed', 'wind_direction']
-       
-       origin_cov_series = TimeSeries.from_dataframe(origin_full_df, time_col='startdate', value_cols=covariates, fill_missing_dates=True, freq='H', fillna_value=0)
-       
-       origin_prediction = model_loaded.predict(timing,future_covariates=origin_cov_series)
-       
-       # origin_prediction [-1] is our number of bikes at origin
-       st.write(origin_prediction)
-       st.write(origin_prediction[-1])
-       
-       destination_full_df = pd.read_csv(f'processed_all_{destination_m}_2020-01-01_2023-06-19_full_data_4.csv')
-       destination_full_df['startdate'] = pd.to_datetime(destination_full_df['startdate']).dt.tz_localize(None)
-       destination_full_df.drop(columns=['year', 'month', 'day', 'hour', 'weekday'], inplace=True)
-       
-       destination_model_path='londonbssfront/models/{destination_m}_model_correct_data_encoded.pkl'
-       destination_model_loaded= AutoARIMA.load(destination_model_path)
+        origin_model_path='londonbssfront/models/{origin_m}_model_correct_data_encoded.pkl'
+        origin_model_loaded= AutoARIMA.load(origin_model_path)
 
-       destination_series = TimeSeries.from_dataframe(destination_full_df, time_col='startdate', value_cols=station, fill_missing_dates=True, freq='H', fillna_value=0)
-       destination_train, val = destination_series.split_before(pd.Timestamp('20230615'))
-       
-       destination_cov_series = TimeSeries.from_dataframe(destination_full_df, time_col='startdate', value_cols=covariates, fill_missing_dates=True, freq='H', fillna_value=0)
-       
-       destination_prediction = model_loaded.predict(timing + 1,future_covariates=cov_series)
+        origin_series = TimeSeries.from_dataframe(origin_full_df, time_col='startdate', value_cols=station, fill_missing_dates=True, freq='H', fillna_value=0)
+        origin_train, origin_val = origin_series.split_before(pd.Timestamp('20230615'))
 
-       
-       # destination_prediction [-1] is our number of empty docks at destination
-       
-       st.write(destination_prediction)
-       st.write(destination_prediction[-1])
+        covariates = ['elisabeth_line', 'lockdown','strike', 'school_holidays', 'daytime', 'London_zone_Central',
+        'London_zone_North', 'London_zone_West', 'London_zone_South_West',
+        'London_zone_South_East', 'London_zone_East', 'Event', 'temperature',
+        'rainfall', 'snowfall', 'cloudcover', 'wind_speed', 'wind_direction']
+
+        origin_cov_series = TimeSeries.from_dataframe(origin_full_df, time_col='startdate', value_cols=covariates, fill_missing_dates=True, freq='H', fillna_value=0)
+
+        origin_prediction = model_loaded.predict(timing,future_covariates=origin_cov_series)
+
+        # origin_prediction [-1] is our number of bikes at origin
+        st.write(origin_prediction)
+        st.write(origin_prediction[-1])
+
+        destination_full_df = pd.read_csv(f'processed_all_{destination_m}_2020-01-01_2023-06-19_full_data_4.csv')
+        destination_full_df['startdate'] = pd.to_datetime(destination_full_df['startdate']).dt.tz_localize(None)
+        destination_full_df.drop(columns=['year', 'month', 'day', 'hour', 'weekday'], inplace=True)
+
+        destination_model_path='londonbssfront/models/{destination_m}_model_correct_data_encoded.pkl'
+        destination_model_loaded= AutoARIMA.load(destination_model_path)
+
+        destination_series = TimeSeries.from_dataframe(destination_full_df, time_col='startdate', value_cols=station, fill_missing_dates=True, freq='H', fillna_value=0)
+        destination_train, val = destination_series.split_before(pd.Timestamp('20230615'))
+
+        destination_cov_series = TimeSeries.from_dataframe(destination_full_df, time_col='startdate', value_cols=covariates, fill_missing_dates=True, freq='H', fillna_value=0)
+
+        destination_prediction = model_loaded.predict(timing + 1,future_covariates=cov_series)
+
+
+        # destination_prediction [-1] is our number of empty docks at destination
+
+        st.write(destination_prediction)
+        st.write(destination_prediction[-1])
 
       ## ITINERARY JOURNEY
 

@@ -3,6 +3,7 @@ import datetime
 import pandas as pd
 import numpy as np
 import requests
+import os
 
 
 from datetime import date
@@ -28,15 +29,13 @@ from darts import TimeSeries
 ###############################################################################
 ###### THEMING
 
+logo_path=os.path.join(os.getcwd(),'londonbssfront','images')
 
 our_name='DockDockGo'
 st.set_page_config(page_title='DOCKDOCKGO', layout="wide")
-Logo= Image.open('raw_data/Logo.png')
-Logo_full=Image.open('raw_data/DDG_logo.png')
 
-Logo_url='raw_data/Logo.png'
-Logo_full_url=('raw_data/DDG_logo.png')
-
+Logo=Image.open(os.path.join(logo_path,'Logo.png'))
+Logo_full=Image.open(os.path.join(logo_path,'DDG_logo.png'))
 
 st.image(Logo_full, use_column_width=True)
 
@@ -130,7 +129,8 @@ st.markdown(
 ### CALLING API
 
 url = "https://nominatim.openstreetmap.org"
-stations_df=pd.read_csv('raw_data/stations_df_st.csv')
+stations_path=os.path.join(os.getcwd(),'londonbssfront','stations_csv')
+stations_df=pd.read_csv(os.path.join(stations_path,'stations_df_st.csv'))
 
 ###############################################################################
 ### ORIGIN AND DESTINATION INPUTS

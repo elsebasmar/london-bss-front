@@ -11,6 +11,7 @@ st.set_page_config(page_title='About_Us', layout="wide")
 Logo=Image.open('londonbssfront/images/Logo.png')
 Logo_full=Image.open('londonbssfront/images/DDG_logo.png')
 
+st.markdown("<h3 style='text-align: center; color: #6d6d6d ;'>WE ARE DOCKDOCKGO</h3>", unsafe_allow_html=True)
 col1, col2, col3, col4,col5,col6,col7,col8,col9= st.columns(9)
 with col9:
     st.image(Logo, use_column_width=True)

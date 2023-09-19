@@ -44,7 +44,7 @@ def add_logo_2():
                 color:white;
             }}
         </style>
-        
+
         """,
         unsafe_allow_html=True,
     )

@@ -21,10 +21,6 @@ from londonbssfront.distance import dist,find_nearest
 
 #####
 
-import darts
-from darts.models import AutoARIMA
-from darts import TimeSeries
-
 ###############################################################################
 ###### THEMING
 
@@ -159,7 +155,7 @@ with col1:
         }
         """,
 ):
-            origin_address=st.text_input(' ','Eagle Wharf Road, Hoxton')
+            origin_address=st.text_input(' ','N1 7FZ')
             params = {
                     'q': origin_address,
                     'format': 'json'
@@ -205,7 +201,7 @@ with col2:
 ###############################################################################
 #### TIMING
 
-# from datetime import datetime
+# from  import datetime
 
 with stylable_container(
     key="container_with_border",
@@ -231,9 +227,11 @@ with stylable_container(
         """,
 ):
 
-            departure_time=st.time_input('(IN HOURS)',time(1, 00),step=3600)
-            now=datetime.datetime.now().time()
-            timing=datetime.datetime.combine(datetime.date.today(), departure_time)-datetime.datetime.combine(datetime.date.today(), now)
+
+         departure_time=st.time_input('(IN HOURS)',time(1, 00),step=3600)
+         now=datetime.datetime.now().time()
+         timing=datetime.datetime.combine(datetime.date.today(), departure_time)-datetime.datetime.combine(datetime.date.today(), now)
+         timing_2=int(str(departure_time)[:2])
 
 ###############################################################################
 ### CODE FOR PREDICTION
@@ -278,6 +276,8 @@ for station in stations:
 origin_m=origin.strip().lower().replace(',',' ').replace('.','').replace('(','').replace(')','').replace('&','').replace(' ','_').replace("'","")
 destination_m=destination.strip().lower().replace(',',' ').replace('.','').replace('(','').replace(')','').replace('&','').replace(' ','_').replace("'","")
 
+import requests
+url_lorcan = 'https://london-bss-final-zby5e6zv3q-nw.a.run.app/predict'
 
 with stylable_container(
     key="red_button",
@@ -290,45 +290,15 @@ with stylable_container(
         """,
 ):
     if st.button("Predict"):
-        # origin_full_df = pd.read_csv(f'londonbssfront/models_csv/processed_all_{origin_m}_2020-01-01_2023-06-19_full_data_4.csv')
-        # origin_full_df['startdate'] = pd.to_datetime(origin_full_df['startdate']).dt.tz_localize(None)
-        # origin_full_df.drop(columns=['year', 'month', 'day', 'hour', 'weekday'], inplace=True)
+        params = {'origin_m': origin_m, 'destination_m': destination_m, 'timing': str(timing_2)}
+        response = requests.get(url_lorcan, params=params)
+        result=response.json()
+        origin_station_result=int(result['origin_station'])
+        destination_station_result=int(result['destination_station'])
 
-        # origin_model_path='londonbssfront/models/{origin_m}_model_correct_data_encoded.pkl'
-        # origin_model_loaded= AutoARIMA.load(origin_model_path)
+        origin_station_nb_bikes=max(int(nb_bikes)+origin_station_result,0)
+        destination_station_empty_docks=max(int(nb_empty_docks)-destination_station_result,0)
 
-        # origin_series = TimeSeries.from_dataframe(origin_full_df, time_col='startdate', value_cols=station, fill_missing_dates=True, freq='H', fillna_value=0)
-        # origin_train, origin_val = origin_series.split_before(pd.Timestamp('20230615'))
-
-        # covariates = ['elisabeth_line', 'lockdown','strike', 'school_holidays', 'daytime', 'London_zone_Central',
-        # 'London_zone_North', 'London_zone_West', 'London_zone_South_West',
-        # 'London_zone_South_East', 'London_zone_East', 'Event', 'temperature',
-        # 'rainfall', 'snowfall', 'cloudcover', 'wind_speed', 'wind_direction']
-
-        # origin_cov_series = TimeSeries.from_dataframe(origin_full_df, time_col='startdate', value_cols=covariates, fill_missing_dates=True, freq='H', fillna_value=0)
-
-        # origin_prediction = model_loaded.predict(timing,future_covariates=origin_cov_series)
-
-
-        # destination_full_df = pd.read_csv(f'londonbssfront/models_csv/processed_all_{destination_m}_2020-01-01_2023-06-19_full_data_4.csv')
-        # destination_full_df['startdate'] = pd.to_datetime(destination_full_df['startdate']).dt.tz_localize(None)
-        # destination_full_df.drop(columns=['year', 'month', 'day', 'hour', 'weekday'], inplace=True)
-
-        # destination_model_path='londonbssfront/models/{destination_m}_model_correct_data_encoded.pkl'
-        # destination_model_loaded= AutoARIMA.load(destination_model_path)
-
-        # destination_series = TimeSeries.from_dataframe(destination_full_df, time_col='startdate', value_cols=station, fill_missing_dates=True, freq='H', fillna_value=0)
-        # destination_train, val = destination_series.split_before(pd.Timestamp('20230615'))
-
-        # destination_cov_series = TimeSeries.from_dataframe(destination_full_df, time_col='startdate', value_cols=covariates, fill_missing_dates=True, freq='H', fillna_value=0)
-
-        # destination_prediction = model_loaded.predict(timing + 1,future_covariates=cov_series)
-
-        # # origin_prediction [-1] is our number of bikes at origin
-        # # destination_prediction [-1] is our number of empty docks at destination
-
-        # st.write(origin_prediction)
-        # st.write(destination_prediction)
 
 ## ITINERARY JOURNEY
 
@@ -394,8 +364,8 @@ with stylable_container(
 
         # from datetime import datetime
 
-        timing_datetime_day=(datetime.datetime.now()+timing) #timedelta(hours=int(timing.strftime("%H")))).strftime("%Y-%m-%d")
-        timing_datetime_full=(datetime.datetime.now()+timing) #timedelta(hours=int(timing.strftime("%H")))).strftime("%Y-%m-%d %H:00")
+        timing_datetime_day=str((datetime.datetime.now()+timing))[:10]
+        timing_datetime_full=str((datetime.datetime.now()+timing))[:13]+":00"
 
 
         for day in weather_2['forecast']['forecastday']:
@@ -404,6 +374,7 @@ with stylable_container(
                     if hour['time']==timing_datetime_full:
                         temperature=hour['temp_c']
                         condition=hour['condition']['text']
+                        icon=hour['condition']['icon']
                         prob_rain=hour['chance_of_rain']
 
 
@@ -431,6 +402,20 @@ with stylable_container(
                 for add_property in station['additionalProperties']:
                     if add_property['key'] == 'NbEmptyDocks':
                         nb_empty_docks_closest_destination=add_property['value']
+
+        closest_origin_m=closest_origin.strip().lower().replace(',',' ').replace('.','').replace('(','').replace(')','').replace('&','').replace(' ','_').replace("'","")
+        closest_destination_m=closest_destination.strip().lower().replace(',',' ').replace('.','').replace('(','').replace(')','').replace('&','').replace(' ','_').replace("'","")
+
+        params_2 = {'origin_m': 'wenlock_road___hoxton', 'destination_m': destination_m, 'timing': str(timing_2)}
+
+        response = requests.get(url_lorcan, params=params_2)
+        result=response.json()
+        closest_origin_station_result=int(result['origin_station'])
+        closest_destination_station_result=int(result['destination_station'])
+
+        closest_origin_station_nb_bikes=max(int(nb_bikes_closest_origin)+origin_station_result,0)
+        closest_destination_station_empty_docks=max(int(nb_empty_docks_closest_destination)-destination_station_result,0)
+
 
 ###############################################################################
 # IN THE STREAMLIT
@@ -473,7 +458,7 @@ with stylable_container(
                 }
                 """,
         ):
-                        st.metric(label="AVAILABLE BIKES", value=nb_bikes)
+                        st.metric(label="AVAILABLE BIKES", value= origin_station_nb_bikes)
 
             with col2:
                 with stylable_container(
@@ -498,7 +483,7 @@ with stylable_container(
                 }
                 """,
         ):
-                        st.metric(label="EMPTY DOCKS", value=nb_empty_docks)
+                        st.metric(label="EMPTY DOCKS", value=destination_station_empty_docks)
 
 
 
@@ -612,8 +597,10 @@ with stylable_container(
 
             col1, col2,col3,col4,col5,col6,col7,col8,col9= st.columns(9)
             with col5:
-                st.markdown("<h3 style='text-align: center; color: #6d6d6d ;'>Weather  </h3>", unsafe_allow_html=True)
+                st.markdown("<h3 style='text-align: center; color: #6d6d6d ;'>Weather         </h3>", unsafe_allow_html=True)
 
+            with col6:
+                st.image('https:'+icon,width=50)
 
 
 
@@ -731,7 +718,7 @@ with stylable_container(
         ):
                         st.markdown(f"<h5 style='text-align: center; color:#6d6d6d ;'>ORIGIN</h5>", unsafe_allow_html=True)
                         st.markdown(f"<h4 style='text-align: center; color: #333333 ;'>{closest_origin}</h4>", unsafe_allow_html=True)
-                        st.metric(label="AVAILABLE BIKES", value=nb_bikes_closest_origin)
+                        st.metric(label="AVAILABLE BIKES", value=closest_origin_station_nb_bikes)
 
             with col2:
                 with stylable_container(
@@ -756,7 +743,7 @@ with stylable_container(
                 ):
                         st.markdown(f"<h5 style='text-align: center; color:#6d6d6d ;'>DESTINATION</h5>", unsafe_allow_html=True)
                         st.markdown(f"<h4 style='text-align: center; color: #333333 ;'>{closest_destination}</h4>", unsafe_allow_html=True)
-                        st.metric(label="EMPTY DOCKS", value=nb_empty_docks_closest_destination)
+                        st.metric(label="EMPTY DOCKS", value=closest_destination_station_empty_docks)
 
         col1, col2, col3, col4,col5,col6,col7,col8,col9= st.columns(9)
         with col9:
